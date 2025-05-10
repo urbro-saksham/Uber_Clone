@@ -1,28 +1,44 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { UserDataContext } from '../Context/UserContext';
 
 export const UserLogin = () => {
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [userData, setUserData] = useState({});
+  const { setUser } = useContext(UserDataContext);
+  const navigate = useNavigate();
 
-  function Submit(e) {
+  async function Submit(e) {
     e.preventDefault();
-    setUserData({
-      email:email,
-      password:password,
-    })
-    setEmail('');
-    setPassword('');
-    console.log(email + " " + password);
-    console.log(userData);
+
+    if (!email || !password) {
+      alert("Please fill in both email and password.");
+      return;
+    }
+
+    const data = { email, password };
+
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/users/login`, data, {
+        withCredentials: true,
+      });
+
+      if (response.status === 200) {
+        setUser(response.data.user);
+        navigate('/home');
+      }
+
+      setEmail('');
+      setPassword('');
+    } catch (error) {
+      console.error('Login error:', error.response?.data || error.message);
+      alert(error.response?.data?.message || "Login failed. Please check your credentials.");
+    }
   }
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-between px-6 py-10 bg-white">
-      
-      {/* Title */}
       <form onSubmit={Submit}>
         <h1 className="text-3xl font-bold mb-8">Sign in to your account</h1>
 
@@ -32,9 +48,7 @@ export const UserLogin = () => {
           <input
             type="email"
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-            }}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black"
             placeholder="Enter your email"
           />
@@ -45,11 +59,9 @@ export const UserLogin = () => {
           <label className="block text-sm font-medium mb-1">Password</label>
           <input
             type="password"
-            className="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black"
             value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black"
             placeholder="Enter your password"
           />
         </div>
@@ -77,4 +89,3 @@ export const UserLogin = () => {
     </div>
   );
 };
- 
