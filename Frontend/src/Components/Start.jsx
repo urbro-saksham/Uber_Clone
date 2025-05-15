@@ -12,7 +12,7 @@ export const Start = () => {
           className='absolute top-5 left-3 h-[65px] rounded-2xl z-10' 
           alt="Uber Logo"
         />
-        
+         
         {/* Background Image */}
         <img 
           src="/TrafficLights.jpg" 
